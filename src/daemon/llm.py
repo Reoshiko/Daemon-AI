@@ -17,7 +17,8 @@ class LLMClient:
                 },
             )
 
-            response.raise_for_status()
+            if response.is_error:
+                raise RuntimeError(f"Ollama {response.status_code}: {response.text}")
             data = response.json()
             content = data["message"]["content"]
             return Decision.model_validate_json(content)
