@@ -1,16 +1,18 @@
 from .llm import LLMClient
 from .models import Event, Decision
-import json
+from .personality import DAEMON_PERSONA
 
-SYSTEM_PROMPT = """
-Для каждого события возвращай только JSON такого формата:
-{
-  "thought": "твоя внутренняя мысль",
-  "action": "reply или ignore",
-  "message": "сообщение человеку или null"
-}
-thought никогда не показывается пользователю.
-Если action = ignore, message должен быть null.
+RULES = """
+Ты должен принять решение о реакции на событие
+Доступные действия:
+reply:
+Ты отвечаешь человеку.
+message обязательно содержит текст ответа
+ignore:
+Ты сознательно ничего не отвечаешь
+message должен быть null
+thought — короткая внутренняя мысль о ситуации
+Она используется только внутренней системой и не показывается человеку
 """
 
 
@@ -19,19 +21,15 @@ class Brain:
         self.llm = LLMClient()
 
     async def process(self, event: Event) -> Decision:
-        prompt = f"""
-Источник: {event.source}
-Событие: {event.type}
-Сообщение: {event.content}
-"""
-        response = await self.llm.chat(
-            [
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT,
-                },
-                {"role": "user", "content": prompt},
-            ]
-        )
-        data = json.loads(response)
-        return Decision.model_validate(data)
+        messages = [
+            {"role": "system", "content": f"{DAEMON_PERSONA}\n\n{RULES}"},
+            {
+                "role": "user",
+                "content": (
+                    f"Источник: {event.source}\n"
+                    f"Тип события: {event.type}\n"
+                    f"Содержание: {event.content}"
+                ),
+            },
+        ]
+        return await self.llm.decide(messages)
