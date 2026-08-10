@@ -4,7 +4,7 @@ import httpx
 
 
 class LLMClient:
-    async def decide(self, messages: list[str, str]) -> Decision:
+    async def decide(self, messages: list[dict[str, str]]) -> Decision:
         async with httpx.AsyncClient(timeout=settings.llm_timeout) as client:
             response = await client.post(
                 f"{settings.llm_base_url}/api/chat",
