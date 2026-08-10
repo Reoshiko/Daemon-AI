@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     llm_model: str = "qwen3:4b"
     llm_timeout: float = 120.0
     llm_temperature: float = 0.8
+    debug: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
