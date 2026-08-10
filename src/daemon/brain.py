@@ -26,9 +26,9 @@ class Brain:
             {
                 "role": "user",
                 "content": (
-                    f"Источник: {event.source}\n",
-                    f"Тип события: {event.type}\n",
-                    f"Содержание: {event.content}",
+                    f"Источник: {event.source}\n"
+                    f"Тип события: {event.type}\n"
+                    f"Содержание: {event.content}"
                 ),
             },
         ]
