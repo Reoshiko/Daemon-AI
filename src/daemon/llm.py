@@ -1,20 +1,23 @@
+from .models import Decision
+from .settings import settings
 import httpx
 
 
 class LLMClient:
-    def __init__(
-        self, base_url: str = "http://localhost:11434", model: str = "qwen3:4b"
-    ):
-        self.base_url = base_url
-        self.model = model
-
-    async def chat(self, messages: list[dict]) -> str:
-        async with httpx.AsyncClient(timeout=120) as client:
+    async def decide(self, messages: list[str, str]) -> Decision:
+        async with httpx.AsyncClient(timeout=settings.llm_timeout) as client:
             response = await client.post(
-                f"{self.base_url}/api/chat",
-                json={"model": self.model, "messages": messages, "stream": False},
+                f"{settings.llm_base_url}/api/chat",
+                json={
+                    "model": settings.llm_model,
+                    "messages": messages,
+                    "stream": False,
+                    "format": Decision.model_json_schema(),
+                    "options": {"temperature": settings.llm_temperature},
+                },
             )
 
             response.raise_for_status()
             data = response.json()
-            return data["message"]["content"]
+            content = data["message"]["content"]
+            return Decision.model_validate_json(content)
