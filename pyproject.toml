@@ -1,0 +1,7 @@
+[project]
+name = "daemon-ai"
+version = "0.1.0"
+description = "Your computer has a daemon. Now it has a mind."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
