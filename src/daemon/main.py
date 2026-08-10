@@ -1,5 +1,6 @@
 from .brain import Brain
 from .models import Event
+from .settings import settings
 import asyncio
 
 
@@ -14,7 +15,8 @@ async def main():
         event = Event(type="message", source="user", content=text)
         decision = await brain.process(event)
 
-        print(f"[thought]: {decision.thought}")
+        if settings.debug:
+            print(f"[thought]: {decision.thought}")
 
         if decision.action == "reply":
             print(f"Daemon: {decision.message}")
