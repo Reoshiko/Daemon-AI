@@ -22,13 +22,7 @@ class Brain:
 
     async def process(self, event: Event) -> Decision:
         messages = [
-            {
-                "role": "system",
-                "content": f"""
-                    {DAEMON_PERSONA}
-                    {RULES}
-                """,
-            },
+            {"role": "system", "content": f"{DAEMON_PERSONA}\n\n{RULES}"},
             {
                 "role": "user",
                 "content": (
