@@ -1,3 +1,4 @@
+from src.memory.database import create_tables
 from .brain import Brain
 from .models import Event
 from .settings import settings
@@ -5,6 +6,8 @@ import asyncio
 
 
 async def main():
+    await create_tables()
+
     brain = Brain()
     print("Starting...")
     print()
