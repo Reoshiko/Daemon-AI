@@ -30,4 +30,15 @@ class Brain:
         for item in history:
             messages.append({"role": item.role, "content": item.content})
         messages.append({"role": "user", "content": event.content})
-        return await self.llm.decide(messages)
+
+        decision = await self.llm.decide(messages)
+        await self.memory.add_message(
+            source=event.source, role="user", content=event.content
+        )
+
+        if decision.action == "reply":
+            await self.memory.add_message(
+                source=event.source, role="assistant", content=decision.message
+            )
+
+        return decision
