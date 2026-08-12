@@ -1,4 +1,4 @@
-from memory.service import MemoryService
+from src.memory.service import MemoryService
 from .llm import LLMClient
 from .models import Event, Decision
 from .personality import DAEMON_PERSONA
