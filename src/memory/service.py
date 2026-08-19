@@ -4,6 +4,23 @@ from .models import Message, MemoryContext, Memory, MemoryType
 
 
 class MemoryService:
+    async def add_message(
+        self,
+        *,
+        source: str,
+        role: str,
+        content: str,
+    ) -> None:
+        async with async_session_maker() as session:
+            session.add(
+                Message(
+                    source=source,
+                    role=role,
+                    content=content,
+                )
+            )
+            await session.commit()
+
     async def add_memory(
         self,
         *,
@@ -14,9 +31,7 @@ class MemoryService:
     ) -> None:
         async with async_session_maker() as session:
             session.add(
-                Memory(
-                    source=source, type=type, content=content, importance=importance
-                )
+                Memory(source=source, type=type, content=content, importance=importance)
             )
             await session.commit()
 
