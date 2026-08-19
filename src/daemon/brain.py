@@ -57,7 +57,7 @@ class Brain:
             source=event.source, message=event.content
         )
         for memory in extraction.memories:
-            await self.memory.add_message(
+            await self.memory.add_memory(
                 source=event.source,
                 type=memory.type,
                 content=memory.content,
