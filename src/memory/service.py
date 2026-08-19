@@ -1,12 +1,23 @@
 from sqlalchemy import select
 from .database import async_session_maker
-from .models import Message, MemoryContext
+from .models import Message, MemoryContext, Memory, MemoryType
 
 
 class MemoryService:
-    async def add_message(self, *, source: str, role: str, content: str) -> None:
+    async def add_message(
+        self,
+        *,
+        source: str,
+        type: str,
+        content: str,
+        importance: float,
+    ) -> None:
         async with async_session_maker() as session:
-            session.add(Message(source=source, role=role, content=content))
+            session.add(
+                Message(
+                    source=source, type=type, content=content, importance=importance
+                )
+            )
             await session.commit()
 
     async def get_recent_messages(self, source: str, limit: int = 10) -> list[Message]:
