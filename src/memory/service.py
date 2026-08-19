@@ -1,12 +1,38 @@
 from sqlalchemy import select
 from .database import async_session_maker
-from .models import Message, MemoryContext
+from .models import Message, MemoryContext, Memory, MemoryType
 
 
 class MemoryService:
-    async def add_message(self, *, source: str, role: str, content: str) -> None:
+    async def add_message(
+        self,
+        *,
+        source: str,
+        role: str,
+        content: str,
+    ) -> None:
         async with async_session_maker() as session:
-            session.add(Message(source=source, role=role, content=content))
+            session.add(
+                Message(
+                    source=source,
+                    role=role,
+                    content=content,
+                )
+            )
+            await session.commit()
+
+    async def add_memory(
+        self,
+        *,
+        source: str,
+        type: MemoryType,
+        content: str,
+        importance: float,
+    ) -> None:
+        async with async_session_maker() as session:
+            session.add(
+                Memory(source=source, type=type, content=content, importance=importance)
+            )
             await session.commit()
 
     async def get_recent_messages(self, source: str, limit: int = 10) -> list[Message]:
@@ -25,10 +51,28 @@ class MemoryService:
 
     async def build_context(self, source: str, limit: int = 10) -> MemoryContext:
         history = await self.get_recent_messages(source=source, limit=limit)
-        return MemoryContext(messages=[{"role": item.role, "content": item.content} for item in history])
+        memories = await self.get_memories(source, limit=limit)
+        return MemoryContext(
+            messages=[{"role": item.role, "content": item.content} for item in history],
+            memories=[item.content for item in memories],
+        )
 
-    async def store_interaction(self, *, source: str, user_message: str, assistant_message: str | None) -> None:
-        await self.add_message(source=source, role="assistant", content=user_message)
+    async def store_interaction(
+        self, *, source: str, user_message: str, assistant_message: str | None
+    ) -> None:
+        await self.add_message(source=source, role="user", content=user_message)
 
         if assistant_message:
-            await self.add_message(source=source, role="assistant", content=assistant_message)
+            await self.add_message(
+                source=source, role="assistant", content=assistant_message
+            )
+
+    async def get_memories(self, source: str, limit: int = 10) -> list[Memory]:
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(Memory)
+                .where(Memory.source == source)
+                .order_by(Memory.importance.desc(), Memory.id.desc())
+                .limit(limit)
+            )
+            return list(result.scalars())
