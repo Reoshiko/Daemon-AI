@@ -21,6 +21,7 @@ class Message(Base):
 @dataclass
 class MemoryContext:
     messages: list[dict[str, str]]
+    memories: list[str]
 
 
 class Memory(Base):
