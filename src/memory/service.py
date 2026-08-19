@@ -1,9 +1,14 @@
 from sqlalchemy import select, text
 from .database import async_session_maker
 from .models import Message, MemoryContext, Memory, MemoryType, RetrievedMemory
+import re
 
 
 class MemoryService:
+    def _prepare_fts_query(self, query: str) -> str:
+        tokens = re.findall(r"\w+", query.lower())
+        return " OR ".join(f'"{tokens}"' for token in tokens if token)
+
     async def add_message(
         self,
         *,
