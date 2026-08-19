@@ -36,8 +36,10 @@ class MemoryService:
 
     async def build_context(self, source: str, limit: int = 10) -> MemoryContext:
         history = await self.get_recent_messages(source=source, limit=limit)
+        memories = await self.get_memories(source, limit=limit)
         return MemoryContext(
-            messages=[{"role": item.role, "content": item.content} for item in history]
+            messages=[{"role": item.role, "content": item.content} for item in history],
+            memories=[item.content for item in memories],
         )
 
     async def store_interaction(
