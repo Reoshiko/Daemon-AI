@@ -9,7 +9,7 @@ class LLMClient:
 
         async with httpx.AsyncClient(timeout=settings.llm_timeout) as client:
             response = await client.post(
-                f"{settings.llm_base_url}/api/chat/completions",
+                f"{settings.llm_base_url}/v1/chat/completions",
                 json={
                     "model": settings.llm_model,
                     "messages": messages,
