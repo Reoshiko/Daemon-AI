@@ -60,7 +60,7 @@ class MemoryService:
     async def store_interaction(
         self, *, source: str, user_message: str, assistant_message: str | None
     ) -> None:
-        await self.add_message(source=source, role="assistant", content=user_message)
+        await self.add_message(source=source, role="user", content=user_message)
 
         if assistant_message:
             await self.add_message(
