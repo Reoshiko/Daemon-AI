@@ -89,6 +89,11 @@ class MemoryService:
     async def search_memories(
         self, source: str, query: str, limit: int = 10
     ) -> list[RetrievedMemory]:
+        fts_query = self._prepare_fts_query(query)
+
+        if not fts_query:
+            return []
+
         async with async_session_maker() as session:
             result = await session.execute(
                 text("""
@@ -109,10 +114,10 @@ class MemoryService:
             rows = result.mappings().all()
             return [
                 RetrievedMemory(
-                    id=row.id,
-                    type=MemoryType(row.type),
-                    content=row.content,
-                    importance=row.importance,
+                    id=row["id"],
+                    type=MemoryType(row["type"]),
+                    content=row["content"],
+                    importance=row["importance"],
                 )
                 for row in rows
             ]
