@@ -8,7 +8,7 @@ class MemoryService:
         self,
         *,
         source: str,
-        type: str,
+        type: MemoryType,
         content: str,
         importance: float,
     ) -> None:
