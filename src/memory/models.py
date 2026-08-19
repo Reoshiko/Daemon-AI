@@ -1,6 +1,7 @@
 from sqlalchemy import DateTime, Integer, String, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import datetime
+from dataclasses import dataclass
 
 
 class Base(DeclarativeBase):
@@ -15,3 +16,8 @@ class Message(Base):
     role: Mapped[str] = mapped_column(String(32), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+@dataclass
+class MemoryContext:
+    messages: list[dict[str, str]]

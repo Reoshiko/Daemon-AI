@@ -3,17 +3,18 @@ from .llm import LLMClient
 from .models import Event, Decision
 from .personality import DAEMON_PERSONA
 
-RULES = """
-Ты должен принять решение о реакции на событие
-Доступные действия:
-reply:
-Ты отвечаешь человеку.
-message обязательно содержит текст ответа
-ignore:
-Ты сознательно ничего не отвечаешь
-message должен быть null
-thought — короткая внутренняя мысль о ситуации
-Она используется только внутренней системой и не показывается человеку
+RULES = RULES = """
+Верни только JSON
+Правила:
+- action = "reply":
+  message обязательно непустая строка с ответом пользователю
+- action = "ignore":
+  message обязательно null
+- thought:
+  короткая внутренняя мысль
+  Не должна быть пустой
+Никакого markdown
+Никаких пояснений вне JSON
 """
 
 
@@ -23,22 +24,22 @@ class Brain:
         self.memory = MemoryService()
 
     async def process(self, event: Event) -> Decision:
-        history = await self.memory.get_recent_messages(event.source, limit=10)
+        context = await self.memory.build_context(event.source, limit=10)
         messages = [
-            {"role": "system", "content": f"{DAEMON_PERSONA}\n\n{RULES}"},
+            {
+                "role": "system",
+                "content": f"{DAEMON_PERSONA}\n\n{RULES}"
+            },
+            *context.messages,
+            {
+                "role": "user",
+                "content": event.content
+            }
         ]
-        for item in history:
-            messages.append({"role": item.role, "content": item.content})
-        messages.append({"role": "user", "content": event.content})
-
         decision = await self.llm.decide(messages)
-        await self.memory.add_message(
-            source=event.source, role="user", content=event.content
+        await self.memory.store_interaction(
+            source=event.source,
+            user_message=event.content,
+            assistant_message=(decision.message if decision.action == "reply" else None)
         )
-
-        if decision.action == "reply":
-            await self.memory.add_message(
-                source=event.source, role="assistant", content=decision.message
-            )
-
         return decision
