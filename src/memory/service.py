@@ -4,7 +4,7 @@ from .models import Message, MemoryContext, Memory, MemoryType
 
 
 class MemoryService:
-    async def add_message(
+    async def add_memory(
         self,
         *,
         source: str,
@@ -14,7 +14,7 @@ class MemoryService:
     ) -> None:
         async with async_session_maker() as session:
             session.add(
-                Message(
+                Memory(
                     source=source, type=type, content=content, importance=importance
                 )
             )
