@@ -3,15 +3,18 @@ from .llm import LLMClient
 from .models import Event, Decision
 from .personality import DAEMON_PERSONA
 
-RULES = """
-Верни решение только в JSON:
-{
-  "thought": "string",
-  "action": "reply или ignore",
-  "message": "string или null"
-}
-Не добавляй markdown
-Не добавляй пояснения
+RULES = RULES = """
+Верни только JSON
+Правила:
+- action = "reply":
+  message обязательно непустая строка с ответом пользователю
+- action = "ignore":
+  message обязательно null
+- thought:
+  короткая внутренняя мысль
+  Не должна быть пустой
+Никакого markdown
+Никаких пояснений вне JSON
 """
 
 
