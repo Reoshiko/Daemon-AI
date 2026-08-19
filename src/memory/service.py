@@ -54,6 +54,8 @@ class MemoryService:
     ) -> MemoryContext:
         history = await self.get_recent_messages(source=source, limit=limit)
         memories = await self.search_memories(source=source, query=query, limit=limit)
+        if not memories:
+            memories = await self.get_memories(source=source, limit=5)
         return MemoryContext(
             messages=[{"role": item.role, "content": item.content} for item in history],
             memories=[item.content for item in memories],
