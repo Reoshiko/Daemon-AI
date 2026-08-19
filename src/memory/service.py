@@ -49,3 +49,13 @@ class MemoryService:
             await self.add_message(
                 source=source, role="assistant", content=assistant_message
             )
+
+    async def get_memories(self, source: str, limit: int = 10) -> list[Memory]:
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(Memory)
+                .where(Memory.source == source)
+                .order_by(Memory.importance.desc(), Memory.id.desc())
+                .limit(limit)
+            )
+            return list(result.scalars())
