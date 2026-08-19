@@ -106,7 +106,7 @@ class MemoryService:
                 LIMIT :limit
                 """),
                 {
-                    "query": query,
+                    "query": fts_query,
                     "source": source,
                     "limit": limit,
                 },
