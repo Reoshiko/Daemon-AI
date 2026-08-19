@@ -4,16 +4,14 @@ from .models import Event, Decision
 from .personality import DAEMON_PERSONA
 
 RULES = """
-Ты должен принять решение о реакции на событие
-Доступные действия:
-reply:
-Ты отвечаешь человеку.
-message обязательно содержит текст ответа
-ignore:
-Ты сознательно ничего не отвечаешь
-message должен быть null
-thought — короткая внутренняя мысль о ситуации
-Она используется только внутренней системой и не показывается человеку
+Верни решение только в JSON:
+{
+  "thought": "string",
+  "action": "reply или ignore",
+  "message": "string или null"
+}
+Не добавляй markdown
+Не добавляй пояснения
 """
 
 
