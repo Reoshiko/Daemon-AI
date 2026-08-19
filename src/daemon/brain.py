@@ -30,8 +30,16 @@ class Brain:
 
     async def process(self, event: Event) -> Decision:
         context = await self.memory.build_context(event.source, limit=10)
+        memory_block = ""
+        if context.memories:
+            memory_block = "\n\nLong-term memories:\n" + "\n".join(
+                f"- {memory}" for memory in context.memories
+            )
         messages = [
-            {"role": "system", "content": f"{DAEMON_PERSONA}\n\n{RULES}"},
+            {
+                "role": "system",
+                "content": f"{DAEMON_PERSONA}\n\n{RULES}\n\n{memory_block}",
+            },
             *context.messages,
             {"role": "user", "content": event.content},
         ]
