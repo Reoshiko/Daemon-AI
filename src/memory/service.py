@@ -1,6 +1,6 @@
-from sqlalchemy import select
+from sqlalchemy import select, text
 from .database import async_session_maker
-from .models import Message, MemoryContext, Memory, MemoryType
+from .models import Message, MemoryContext, Memory, MemoryType, RetrievedMemory
 
 
 class MemoryService:
@@ -76,3 +76,34 @@ class MemoryService:
                 .limit(limit)
             )
             return list(result.scalars())
+
+    async def search_memories(
+        self, source: str, query: str, limit: int = 10
+    ) -> list[RetrievedMemory]:
+        async with async_session_maker() as session:
+            result = await session.execute(
+                text("""
+                SELECT m.*
+                FROM memories_fts f
+                JOIN memories m ON m.id = f.rowid
+                WHERE memories_fts MATCH :query
+                  AND m.source = :source
+                ORDER BY bm25(memories_fts)
+                LIMIT :limit
+                """),
+                {
+                    "query": query,
+                    "source": source,
+                    "limit": limit,
+                },
+            )
+            rows = result.mappings().all()
+            return [
+                RetrievedMemory(
+                    id=row.id,
+                    type=MemoryType(row.type),
+                    content=row.content,
+                    importance=row.importance,
+                )
+                for row in rows
+            ]
