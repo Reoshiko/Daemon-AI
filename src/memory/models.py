@@ -1,11 +1,19 @@
-from sqlalchemy import DateTime, Integer, String, Text, func, Float
+from sqlalchemy import DateTime, Integer, String, Text, func, Float, Enum as SQLEnum
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import datetime
 from dataclasses import dataclass
+from enum import Enum
 
 
 class Base(DeclarativeBase):
     pass
+
+
+class MemoryType(str, Enum):
+    FACT = "fact"
+    PREFERENCE = "preference"
+    GOAL = "goal"
+    EVENT = "event"
 
 
 class Message(Base):
@@ -29,7 +37,7 @@ class Memory(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     source: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
-    type: Mapped[str] = mapped_column(String(32), nullable=False)
+    type: Mapped[MemoryType] = mapped_column(SQLEnum(MemoryType), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     importance: Mapped[float] = mapped_column(Float, nullable=Float, default=0.5)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
