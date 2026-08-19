@@ -2,6 +2,7 @@ from src.memory.service import MemoryService
 from .llm import LLMClient
 from .models import Event, Decision
 from .personality import DAEMON_PERSONA
+from src.memory.extractor import MemoryExtractor
 
 RULES = """
 Return only JSON.
@@ -27,6 +28,7 @@ class Brain:
     def __init__(self):
         self.llm = LLMClient()
         self.memory = MemoryService()
+        self.extractor = MemoryExtractor()
 
     async def process(self, event: Event) -> Decision:
         context = await self.memory.build_context(event.source, limit=10)
@@ -51,4 +53,14 @@ class Brain:
                 decision.message if decision.action == "reply" else None
             ),
         )
+        extraction = await self.extractor.extract(
+            source=event.source, message=event.content
+        )
+        for memory in extraction.memories:
+            await self.memory.add_message(
+                source=event.source,
+                type=memory.type,
+                content=memory.content,
+                importance=memory.importance,
+            )
         return decision
