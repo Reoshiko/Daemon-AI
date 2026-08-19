@@ -39,5 +39,5 @@ class Memory(Base):
     source: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     type: Mapped[MemoryType] = mapped_column(SQLEnum(MemoryType), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    importance: Mapped[float] = mapped_column(Float, nullable=Float, default=0.5)
+    importance: Mapped[float] = mapped_column(Float, nullable=False, default=0.5)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
