@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from .database import async_session_maker
-from .models import Message
+from .models import Message, MemoryContext
 
 
 class MemoryService:
@@ -22,3 +22,7 @@ class MemoryService:
         messages.reverse()
 
         return messages
+
+    async def build_context(self, source: str, limit: int = 10) -> MemoryContext:
+        history = await self.get_recent_messages(source=source, limit=limit)
+        return MemoryContext(messages=[{"role": item.role, "content": item.content} for item in history])
