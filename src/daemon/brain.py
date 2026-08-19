@@ -31,7 +31,9 @@ class Brain:
         self.extractor = MemoryExtractor()
 
     async def process(self, event: Event) -> Decision:
-        context = await self.memory.build_context(event.source, limit=10)
+        context = await self.memory.build_context(
+            source=event.source, query=event.content, limit=10
+        )
         memory_block = ""
         if context.memories:
             memory_block = "\n\nLong-term memories:\n" + "\n".join(
